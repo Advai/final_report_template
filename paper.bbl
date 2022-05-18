@@ -1,0 +1,24 @@
+\begin{thebibliography}{1}
+
+\bibitem{DBLP:journals/corr/HowardMS16}
+{\sc Howard, H., Malkhi, D., and Spiegelman, A.}
+\newblock Flexible paxos: Quorum intersection revisited.
+\newblock {\em CoRR abs/1608.06696\/} (2016).
+
+\bibitem{lamport_1998}
+{\sc Lamport, L.}
+\newblock The part-time parliament.
+\newblock {\em ACM Transactions on Computer Systems 16}, 2 (1998), 133:169.
+
+\bibitem{nakamoto2012bitcoin}
+{\sc Nakamoto, S.}
+\newblock Bitcoin: A peer-to-peer electronic cash system, 2009.
+
+\bibitem{10.5555/2643634.2643666}
+{\sc Ongaro, D., and Ousterhout, J.}
+\newblock In search of an understandable consensus algorithm.
+\newblock In {\em Proceedings of the 2014 USENIX Conference on USENIX Annual
+  Technical Conference\/} (2014), USENIX ATC'14, USENIX Association,
+  p.~305:320.
+
+\end{thebibliography}

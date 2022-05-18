@@ -1,0 +1,76 @@
+\section{Solution}
+\label{sec:solution}
+\subsection{Flexible Quorums}
+One such variation of Paxos that has been proven to be applicable to Raft was Flexible Paxos \cite{DBLP:journals/corr/HowardMS16}. 
+The main idea of the Flexible Paxos variant is proving that one can relax the strict majority quorums that are used in both Paxos and Raft. 
+We define a strict majority quorum for crash-faults as $[n/2] + 1$ (where $n$ is the number of nodes in the cluster). 
+Many proofs of distributed consensus rely on the idea of a quorum intersection. 
+Put simply, if we build two quorums to make some decision, it is necessary to prove that at least one non-faulty process must lie in the intersection of the quorums to avoid violations of safety and liveness. 
+It is trivial to see why this would be true in the case of two strict majority quorums where f < n/2, with f being the number of crash-faults tolerated.  
+Flexible Paxos proposes that only the following equation must hold true in order for one to achieve a quorum intersection (and thus keep the safety property of replication/agreement):
+$$|Q1| + |Q2| > N. $$
+Where $Q1$ refers to phase-1 quorum (leader election), and $Q2$ refers to phase 2 quorum (commit acceptance). 
+In multi-decree Paxos, invoking a commit quorum is much more common than a leader election quorum. 
+Thus, the paper claims that by reducing the quorum needed to commit values and increasing the leader election quorum size, we can achieve higher throughput and lower latency in practice (assuming normal network conditions).
+One of our contributions for this project was to apply flexible quorums to Raft. 
+However to do so it is important to note the subtle differences between the safety conditions that both protocols require. 
+The safety proof for Raft relies on the idea of a single leader at all times. 
+This means that there is no way we can guarantee that Raft will remain safe without keeping the leader election quorum as a strict majority quorum. 
+Raft also explicitly handles cluster membership changes as a special type of log entry. 
+These two unique properties of Raft require leader election and cluster membership change entries to have strict majority quorums to keep safety intact. 
+In the case that we do not take into account cluster membership changes, one can easily see the following as a split-brain scenario:
+
+Let $N_t= 4$ (where t refers to the term of a leader). 
+Applying relaxing of the majority quorums we get $|Q_{le}| = 3$ and $|Q_{lr}| = 2$. Say during this term $t$, a member is added to the cluster by a $|Q_{lr}|$. 
+Now at $t+1$ we have: $N_{t+1} = 5$, $|Qle| = 3$, $|Qlr| = 4$. 
+Since we can now no longer guarantee that the new leader elected in $t+1$ has the log entry of the new member being added (by quorum intersection), we can violate safety with the newly elected leader overwriting our commit marker. 
+
+The main benefits of using flexible quorums for Raft lies in the availability of even sized clusters. 
+As mentioned earlier the typical Raft cluster size in practice is small;  5 or 7 nodes. 
+We use odd sized clusters as they have better availability since each node in the system is less responsible for liveness. 
+With flexible quorums we can show strict improvement of the availability of even sized clusters, which in practice are unavoidable due to membership changes, partitions, and crash-faults. 
+We claim (refer to slides linked in appendix) that, with flexible quorums, an even sized cluster has the same asymptotic availability as an odd sized cluster with one less node. 
+It is quite a trivial change to implement in practice, mainly because the original raft needs to be aware of cluster membership changes already. 
+This means the only changes to the implementation are a relaxation of the log replication quorum when the flag of a cluster membership change is set. 
+We will not describe further the implementation. See appendix for commit details. 
+
+\subsection{Chained Logs}
+Using immutability is not a new concept, especially as it is becoming much more feasible with the cost of storage lowering. 
+Making tradeoffs of memory footprint for performance is additionally favorable for large-scale cloud systems as they typically require much disk space in order to persist data regardless. 
+As a result, we propose restructuring the raft commit log to be an immutable chain of blocks. 
+We believe that this variant can increase observability and throughput under moderate leader failures because of the ability to send blocks of commands at the same time across the network. 
+
+	The difference between original Raft and Chained Raft is that we will use a chain of “blocks” instead of a mutable log of events. 
+    Leaders add blocks to the head of their chain and replicate it across nodes. 
+    The result is each block storing a chain that cannot be changed, however forks can still occur. 
+    Resolving these forks can affect safety and is further discussed in the Implementation section. 
+    A major benefit of chained raft is that we do not need to track indexes in the log, just the last appended term and the head of the chain. 
+    Blocks currently store one entry but, in practice, will store chunks of entries.
+    With moderate leader failures, original Raft will potentially change entries in its log to correct itself and ensure state machine safety. 
+    Under Chained Raft, blocks are appended to a chain much less frequently, since we put many commands into a block. 
+    Furthermore, the logs do not need to be corrected under leader failure and forks in the chain can be resolved faster, as described below. 
+Before we could implement this immutable chain of blocks, we had to first ensure that the correctness and safety of the Raft algorithm would not be compromised. 
+Recall the five properties that the Raft paper uses to prove safety: Election Safety, Leader Append-Only, Log Matching, Leader Completeness, State Machine Safety. 
+We must define analogous properties for Chained Raft. 
+Election Safety is the same. 
+The Leader Append-Only property is that only a leader can add blocks to its head. 
+The Log Matching property states that if two chains contain the same block then the path from the genesis block to the block on both chains will be the same. 
+The Leader Completeness property states that if a block is committed in a given term then the heads of the leaders for all greater terms will either be the block or will extend the block. 
+We will present a short proof of the Leader Completeness property as it is non-trivial and essential in ensuring safety in Chained Raft. 
+	Consider a block $b$ that was first committed by the leader in term $t$. 
+    This means that at least a majority of servers had its last appended term as $t$ and the heads of their respective chain are either $b$ or extend $b$. We will do a proof by induction over the terms after $t$ to show the Leader Completeness property holds. 
+	\\ \begin{proof} 
+            Base case: Consider term $t+1$. 
+            A leader in term $t+1$ must have received votes from a majority and at least one of those servers has a last appended term of $t$ and a head which is $b$ or extends $b$. 
+            The leader cannot have a last appended term greater than $t$, so that means the leader must have $t$ as its last appended term. 
+            So, its head is either $b$ or extends block $b$. 
+            So, if there is a leader in term $t+1$, then $b$ is present in the leader\textquotesingle s chain. 
+	
+                Inductive case: Consider the term $t+k$. 
+                We assume that the property holds up to term $t+k-1$. 
+                A leader in term $t+k$ must have gotten a majority of votes to be elected. 
+                This means that at least one server\textquotesingle s last appended term was, at some point, $t$ and its head is either $b$ or extends $b$. 
+                This server also must have voted for the leader. 
+                This means that any leaders since will have added blocks that extend $b$. 
+                Therefore, a leader in term $t+k$ has a head that is either block $b$ or extends block $b$. 
+    \end{proof}
