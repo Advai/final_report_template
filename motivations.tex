@@ -1,16 +1,28 @@
 \section{Motivation}
+For hyper-scalar cloud service providers, availability, specifically client facing availability, is the most commonly used metric for evaluating system effectiveness.
+However, needed qualities such as replication and consistency across large cloud-scale systems requires the use of distributed consensus at some level. 
+As Distributed Partial synchronous consensus is expensive, this is typically achieved by a small consensus cluster of five to seven nodes laying at the bottom of the hierarchacal system structure.
+Since distributed consensus tolerates $\frac{1}{2}$ crash-faults, this provides a degree of crash-fault tolerance, while minimizing the cost to latency and availability of the dependent services. 
 
-Desirable qualities such as replication and consistency across large cloud-scale systems require the use of distributed consensus at some level. 
-However, consensus is a very expensive procedure in terms of communication and round trip complexity. 
-This results in most of the clusters running consensus algorithms in practice to be quite small, with larger clusters built on top of them that typically benefit from consistent reads that such consensus algorithms offer. 
-This provides a degree of crash-fault tolerance, while minimizing the cost to latency and availability for users. 
-For hyper-scalar cloud service providers, availability or client facing availability is the most commonly used metric for evaluating system effectiveness.
+Raft was originally proposed in 2014 as an easier to understand and implement consensus algorithm when compared to Paxos. Despite those claims, the two protocols are quite similar fundamentally.
+Specifically, research has shown that there exists a formal mapping between the two under moderate assumptions (named Raft*) using refinement mapping \cite{10.1145/3293611.3331595}.
+The result of such work has critically given the ability to port specific optimizations from Paxos to Raft.
+As a result of Paxos being an active area of research for over twenty years now, this means that lots of Raft research work can be expedited using these previos findings and ideas.
+This also allows one to view distributed consensus more holistically, and may change the way we approach research in these areas. 
 
-Raft was originally proposed in 2014 as an easier to understand and implement consensus algorithm when compared to Paxos.
- Despite those claims,  there are many similarities between the two protocols.
- Specifically, research has shown that there exists a formal mapping between the two under moderate assumptions using refinement mapping [8].
- The result of such work has given the ability to port specific optimizations from Paxos to Raft without sacrificing consensus requirements.
- This is crucial because there are many variations of Paxos, as it has been an active area of research for over twenty years now.
- In more recent years, new byzantine fault tolerant algorithms such as Tendermint, Casper FFG [7], and HotStuff [6] have utilized an immutable chain-based log structure which is a paradigm shift from the usual mutable log structures that Raft, Paxos, and PBFT use.
- Some less formal, raft-specific immutable log variants are also being explored in recent times [4].
-  As a result, we believe that there can be much research needed in Raft optimizations(?)
+We believe that there is lots of research to be done in many areas of fault-tolerant distributed consensus, but particularly Raft optimizations. 
+Crypto-currencies have revived research in the area of fault-tolerance, specifically byzantine fault tolerance. 
+In more recent years, new byzantine fault tolerant consensus algorithms such as Tendermint, Casper FFG \cite{DBLP:journals/corr/abs-1710-09437}, and HotStuff \cite{yin_malkhi_reiter_gueta_abraham_2019} have utilized an immutable chain-based log structure. 
+This is a paradigm shift from the usual mutable log structures that Raft, Paxos, PBFT, and all other traditional consensus algorithms use.
+Some less formal, raft-specific immutable log variants are also being explored in recent times \cite{howard_2021}. 
+We believe that as a result of crypto-currencies being motivated almost solely by practical applications, the research in byzantine fault tolerance is much more in line with practical applications and scenarios.
+
+As a result, we wanted to explore some ideas from recent Paxos and Raft optimizations to try and find improvements under specific use cases. In particular, we were interested in using the idea 
+of immutable log entries mentioned earlier. Immutability allows systems to be more robust to concurrency and other bugs, whilst increasing observability of the systems behavior. 
+As we progress into the next decade, systems will get contine to get larger and bugs harder to find.
+We believe the fundamental concern of a fault-tolerant consensus algorithm in practice should be its reliability, not performance.
+As a result, we attempt to show how one can mantain (and even improve) performance such as latency and throughput whilst using an immutable log structure for Raft. 
+We call the variant Flexible Chained Raft, as we also implement flexible quorums from Flexible Paxos \cite{DBLP:journals/corr/HowardMS16}.  
+By making advantageous and justifiable memory tradeoffs, we believe the added immutabilty allows distributed consensus to be more understandable both to implement and reason about.
+
+(WHY IMMUTABLE DATA W/E citation) 

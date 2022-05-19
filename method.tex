@@ -1,3 +1,17 @@
 \section{Method}
 \label{sec:method}
-The related work of your project~\cite{lamport_1998}.
+\subsection{benchmarking}
+Our implementation began from a fork of an open-source Raft repository called eRaft.
+To implement flexible and chained raft, we wrote analogous functions that used chained RPC's and flexible quorums to replace the original core functionality in eRaft. 
+Then, to test our system, we extended a client/server workbench that eRaft contributors provided. 
+The measured workload is a distributed key-value store that puts 500,000 values across 10 client threads spread evenly across servers. 
+The clients then output throughput and latency values for the valid puts.
+The clients perform validation by keeping track of requests and sending get requests.
+We ran our system in a pseudo-distributed fashion, with each node running as a docker container. We were unfortunately not able to mimic our benchmarks on a physical VM Cluster. 
+We ensured that each server ran on seperate threads during benchmarking. To simulate realistic networked messages, we added 20ms delay to individual client requests.
+
+    \subsection{Correctness Testing}
+
+    The eRaft repo also had correctness tests that they ported from the original Raft paper. We converted those correctness tests to use blocks in order to validate the correctness of our chained implementation. 
+    Then, to test the fault tolerance of our raft implementation, we used slooo to programatically inject faults into our docker containers. These faults were as follows: CPU slow, lossy networks, slow networks, disk slow, and memory contention.
+    We forewent crash faults, as time did not persist and we have no reason to believe the behavior would be notable.

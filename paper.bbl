@@ -1,24 +1,47 @@
 \begin{thebibliography}{1}
 
+\bibitem{DBLP:journals/corr/abs-1710-09437}
+{\sc Buterin, V., and Griffith, V.}
+\newblock {Casper the Friendly Finality Gadget}.
+\newblock {\em CoRR abs/1710.09437\/} (2017).
+
+\bibitem{howard_2021}
+{\sc Howard, H.}
+\newblock {Simplifying raft with chaining}, Jul 2021.
+
 \bibitem{DBLP:journals/corr/HowardMS16}
 {\sc Howard, H., Malkhi, D., and Spiegelman, A.}
-\newblock Flexible paxos: Quorum intersection revisited.
+\newblock {Flexible Paxos: Quorum intersection revisited}.
 \newblock {\em CoRR abs/1608.06696\/} (2016).
 
 \bibitem{lamport_1998}
 {\sc Lamport, L.}
-\newblock The part-time parliament.
-\newblock {\em ACM Transactions on Computer Systems 16}, 2 (1998), 133:169.
+\newblock {The part-time Parliament}.
+\newblock {\em ACM Transactions on Computer Systems 16}, 2 (1998), 133--169.
 
 \bibitem{nakamoto2012bitcoin}
 {\sc Nakamoto, S.}
-\newblock Bitcoin: A peer-to-peer electronic cash system, 2009.
+\newblock {Bitcoin: A peer-to-peer electronic cash system}, 2009.
 
 \bibitem{10.5555/2643634.2643666}
 {\sc Ongaro, D., and Ousterhout, J.}
-\newblock In search of an understandable consensus algorithm.
+\newblock {In Search of an Understandable Consensus Algorithm}.
 \newblock In {\em Proceedings of the 2014 USENIX Conference on USENIX Annual
   Technical Conference\/} (2014), USENIX ATC'14, USENIX Association,
-  p.~305:320.
+  pp.~305--320.
+
+\bibitem{10.1145/3293611.3331595}
+{\sc Wang, Z., Zhao, C., Mu, S., Chen, H., and Li, J.}
+\newblock {On the Parallels between Paxos and Raft, and How to Port
+  Optimizations}.
+\newblock In {\em Proceedings of the 2019 ACM Symposium on Principles of
+  Distributed Computing\/} (New York, NY, USA, 2019), Association for Computing
+  Machinery, pp.~445--454.
+
+\bibitem{yin_malkhi_reiter_gueta_abraham_2019}
+{\sc Yin, M., Malkhi, D., Reiter, M.~K., Gueta, G.~G., and Abraham, I.}
+\newblock {Hotstuff}.
+\newblock {\em Proceedings of the 2019 ACM Symposium on Principles of
+  Distributed Computing\/} (2019).
 
 \end{thebibliography}

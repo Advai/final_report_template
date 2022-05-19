@@ -1,7 +1,8 @@
 \begin{abstract}
 
     Distributed consensus is required for many modern day applications such as replicated state machines, distributed file systems, and databases. 
-    However traditional consensus algorithms have been developed in research for simplicity and understandability. 
-    We find that certain design decisions can be made to improve the performance of consensus algorithms by expanding the model of fault-tolerances to be more applicable to the faults experienced in practice. 
-    In this paper we describe two variations of Raft intended  for better performance under specific, understudied fault models such as network partitions, and fail-stop restart faults.
+    However traditional consensus algorithm research has to make fine-grained assumptions about fault behavior. have been developed in research for simplicity and understandability. 
+    We propose that more specialized design decisions can be made to improve the performance of consensus algorithms by expanding the model of fault-tolerances to be more applicable to the faults experienced in practice. 
+    In this paper we describe two optimizations of Raft that we call Flexible Chained Raft intended for better performance under specific, understudied fault models such as network partitions, and fail-slow faults.
+
 \end{abstract}
